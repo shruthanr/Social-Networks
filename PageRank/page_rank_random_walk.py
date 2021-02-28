@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Feb 28 22:10:13 2021
-
 @author: shrut
 """
-
 import networkx as nx
 import random
 import numpy as np
@@ -21,43 +18,29 @@ def add_edges(G, p=0.3):
     return G
 
 
-def distribute_points(G, points):
-    new_points = [0 for _ in range(G.number_of_nodes())]
-    for u in G.nodes():
-        outlinks = G.out_edges(u)
+def random_walk(G):
+    nodes = list(G.nodes())
+    points = [0 for i in range(len(nodes))]
+    
+    r = random.choice(nodes)
+    points[r] += 1
+    
+    outlinks = list(G.out_edges(r))
+    
+    c = 100000
+    while (c > 0):
         if len(outlinks) == 0:
-            new_points[u] += points[u]
-        
+            current_node = random.choice(nodes)
         else:
-            share = points[u]/len(outlinks)
-            for link in outlinks:
-                new_points[link[1]] += share
-    return new_points
+            
+            current_node = random.choice(outlinks)[1]
+        
+        points[current_node] += 1
+        outlinks = list(G.out_edges(current_node))
+        c -= 1
+    return points
+    
 
-def taxation(G, points, s=0.8):
-    for i in range(len(points)):
-        points[i] = points[i]*s
-    
-    n = G.number_of_nodes()
-    extra = (n * 100 * (1-s)) / n
-    for i in range(len(points)):
-        points[i] += extra
-        
-    return points
-    
-    
-def distribute_points_till_conv(G, points):
-    print("Enter # to stop")
-    while(1):
-        new_points = distribute_points(G, points)
-        
-        new_points = taxation(G, new_points)
-        points = new_points
-        print(points)
-        c = input()
-        if c == '#':
-            break
-    return points
 
 def sort_nodes_by_points(points):
     points = np.array(points)
@@ -66,18 +49,18 @@ def sort_nodes_by_points(points):
     
     
 def main():
-    # Create the graph
+    # Create a graph
     G = nx.DiGraph()
     G.add_nodes_from(list(range(10)))
     G = add_edges(G, p=0.3)
-    
-    # Distribute points
-    points = [100 for _ in range(G.number_of_nodes())]
-    print(points)
-    points = distribute_points_till_conv(G, points)
+
+
+    # Random Walk
+    points = random_walk(G)
     
     # Rank the nodes
     sorted_nodes = sort_nodes_by_points(points)
+    
     print("Nodes sorted by points: ", sorted_nodes)
     
     # Compare with NetworkX's imolementation
