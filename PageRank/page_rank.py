@@ -75,6 +75,7 @@ def main():
     sorted_nodes = sort_nodes_by_points(points)
     
     print("Nodes sorted by points: ", sorted_nodes)
+    print("Result from the networkx implementation of PageRank(for comparision):")
     pr = nx.pagerank(G)
     pr_sorted = sorted(pr.items(), key=lambda x : x[1], reverse=True)
     
